@@ -1,0 +1,159 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Test deplacement</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <canvas id="calc" width="800" height="600"></canvas>
+
+
+    <script type="text/javascript">
+
+        var canvas = document.getElementById("canvas")
+        var ctx = canvas.getContext("2d")
+
+        // init picture
+        var sprites = new image('sprites.png', 48, 92);
+
+        // Objet image
+        function image(src, largeur_perso, hauteur_perso, mouvement = 9, bas = 0, bas_gauche = 1, gauche = 2, haut_gauche = 3, haut = 4, haut_droite = 5, droite = 6, bas_droite = 7) {
+            var img = new Image();
+            img.src = src;
+            this.img = img;
+            this.mouvement = mouvement;
+            this.largeur_perso = largeur_perso;
+            this.hauteur_perso = hauteur_perso;
+            this.bas = bas;
+            this.bas_gauche = bas_gauche;
+            this.gauche = gauche;
+            this.haut_gauche = haut_gauche;
+            this.haut = haut;
+            this.haut_droite = haut_droite;
+            this.droite = droite;
+            this.bas_droite = bas_droite;
+        }
+
+        // Objet perso
+        function perso(img, x, y, vitesse, direction) {
+            this.img = img;
+            this.coords_x = x;
+            this.coords_y = y;
+            this.mouvement = 0;
+            this.direction = direction;
+            this.vitesse = vitesse;
+        }
+
+        // Dessine le personnage
+        function draw(img, perso, perso_largeur, perso_hauteur) {
+            ctx.drawImage(
+                img, // objet image
+                perso_largeur * perso.mouvement, // The x coordinate on picture (sprites 0/1/2/3)
+                perso_hauteur * perso.direction, // The y coordinate on picture (déplacement 0/1/2/3)
+                perso_largeur,  // Largeur du personnage
+                perso_hauteur,  // Hauteur du personnage
+                perso.coords_x,  // The x coordinate on canvas
+                perso.coords_y,  // The y coordinate on canvas
+                perso_largeur,  // The width of the image to use (stretch or reduce the image)
+                perso_hauteur   // The height of the image to use (stretch or reduce the image)
+            );
+        }
+
+        // Déplace le personnage
+        function deplacement(perso) {
+            perso.mouvement++;
+            if (perso.mouvement == perso.img.mouvement) {
+                perso.mouvement = 0;
+            }
+
+            if (perso.direction == perso.img.haut_droite ||
+                perso.direction == perso.img.droite ||
+                perso.direction == perso.img.bas_droite) {
+                perso.coords_x += perso.vitesse;
+            } else if (perso.direction == perso.img.haut_gauche ||
+                perso.direction == perso.img.gauche ||
+                perso.direction == perso.img.bas_gauche) {
+                perso.coords_x -= perso.vitesse;
+            }
+
+            if (perso.direction == perso.img.bas_droite ||
+                perso.direction == perso.img.bas ||
+                perso.direction == perso.img.bas_gauche) {
+                perso.coords_y += perso.vitesse;
+            } else if (perso.direction == perso.img.haut_droite ||
+                perso.direction == perso.img.haut ||
+                perso.direction == perso.img.haut_gauche) {
+                perso.coords_y -= perso.vitesse;
+            }
+        }
+
+        // Move test 1 : droite | gauche
+        function move(perso) {
+            if (perso.coords_x == 680) {
+                perso.direction = perso.img.gauche;
+            } else if (perso.coords_x == 20) {
+                perso.direction = perso.img.droite;
+            }
+
+            deplacement(perso);
+        }
+
+        // Move test 2 : diagonale haut/droite | diagonale bas/gauche
+        function move2(perso) {
+            if (perso.coords_x == 200) {
+                perso.direction = perso.img.bas_gauche;
+            } else if (perso.coords_x == 20) {
+                perso.direction = perso.img.haut_droite;
+            }
+
+            deplacement(perso);
+        }
+
+        // Move test 3 : haut | bas
+        function move3(perso) {
+            if (perso.coords_y == 200) {
+                perso.direction = perso.img.bas;
+            } else if (perso.coords_y == 400) {
+                perso.direction = perso.img.haut;
+            }
+
+            deplacement(perso);
+        }
+
+        // Boucle de rafraichissement
+        var frameCount = 0;
+        function live() {
+            frameCount++;
+            if (frameCount < 8) { // A régler (Pour une vitesse (perso.vitesse) de 1 : les mouvements du personnage doivent paraitre fluide)
+                window.requestAnimationFrame(live);
+                return;
+            }
+            frameCount = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            draw(perso1.img.img, perso1, sprites.largeur_perso, sprites.hauteur_perso);
+            draw(perso1.img.img, perso2, sprites.largeur_perso, sprites.hauteur_perso);
+            draw(perso1.img.img, perso3, sprites.largeur_perso, sprites.hauteur_perso);
+            draw(perso4.img.img, perso4, sprites.largeur_perso, sprites.hauteur_perso);
+
+            // Tests déplacements
+            move(perso1);
+            move(perso2);
+            move2(perso3);
+            move3(perso4);
+
+            window.requestAnimationFrame(live)
+        }
+
+        // Init personnages
+        var perso1 = new perso(sprites, 20, 10, 3, sprites.droite);
+        var perso2 = new perso(sprites, 20, 40, 5, sprites.droite);
+        var perso3 = new perso(sprites, 20, 400, 4, sprites.haut_droite);
+        var perso4 = new perso(sprites, 400, 400, 2, sprites.haut);
+
+        window.requestAnimationFrame(live)
+    </script>
+</body>
+
+</html>
